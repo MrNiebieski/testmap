@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1,user-scalable=no" />
+
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link rel="stylesheet" href="css/themes/default/jquery.mobile-1.4.5.min.css" />
+		<link rel="stylesheet" href="css/jqm-demos.css">
+
+		<meta http-equiv="cache-control" content="no-cache">
+		<meta http-equiv="pragma" content="no-cache">
+
+		<link rel="stylesheet" href="js/datepicker/default.css" id="theme_base">
+		<link rel="stylesheet" href="js/datepicker/default.date.css" id="theme_date">
+		<link rel="stylesheet" href="js/datepicker/default.time.css" id="theme_time">
+
+		<script src="js/jquery.min.js"></script>
+		<script src="js/jquery.mobile-1.4.5.min.js"></script>
+		<script src="js/handlebars.js"></script>
+
+		<title> Siteler Wash App</title>
+
+		<script id="customer-promotion-template" type="text/x-handlebars-template">
+
+			{{#promotions}}
+
+			<li data-role="list-divider">
+			<h2><strong>{{daterange}}</strong></h2>
+			</li>
+
+			{{#class}}
+			<li>
+			<p class="ui-li-aside">
+			<strong>{{rate}}</strong>
+			</p>
+
+			<h3>{{type}}</h3>
+			<p>
+			{{desc}}
+			</p>
+
+			</li>
+			{{/class}}
+
+			{{/promotions}}
+
+		</script>
+
+		<script id="worker-schedule-template" type="text/x-handlebars-template">
+
+			{{#appointments}}
+			{{#date}}
+			<li data-role="list-divider">
+			{{date}} <span class="ui-li-count">{{numberofelements}}</span>
+			</li>
+
+			{{/date}}{{#jobs}}
+			<li>
+			<a onclick="load_job_detail({{slotid}})"> <h2>Location: {{location}}</h2>
+			<p>
+			<strong>{{address}}</strong>
+			</p>
+			<p class="ui-li-aside">
+			<strong>{{timerange}}</strong>
+			</p> </a>
+			</li>
+			{{/jobs}}{{/appointments}}
+
+		</script>
+
+		<script id="worker-earning-template" type="text/x-handlebars-template">
+			<ul data-role="listview" data-inset="true">
+
+			{{#earnings}}
+
+			<li data-role="list-divider">
+			<h3>Total Earning:</h3>  <span class="ui-li-count">{{total}}</span>
+			</li>
+
+			{{#jobs}}
+			<li>
+			<h2>{{date}}</h2>
+			<p>
+			<strong>{{timerange}}</strong>
+			</p>
+			<p>
+			Vehicle: {{vehicle}}
+			</p>
+			<p>
+			Location: {{address}}
+			</p>
+			<p class="ui-li-aside">
+			<strong>{{earning}}</strong>
+			</p>
+			</li>
+			{{/jobs}}
+
+			{{/earnings}}
+			</ul>
+		</script>
+
+		<script id="customer-schedule-template" type="text/x-handlebars-template">
+
+			{{#appointments}}
+
+			{{#date}}
+			<li data-role="list-divider">
+			<h2><strong>{{date}}</strong></h2> <span class="ui-li-count">{{numberofelements}}</span>
+			</li>
+
+			{{/date}}
+
+			{{#jobs}}
+			<li>
+			<p class="ui-li-aside">
+			<strong>{{status}}</strong>
+			</p>
+			<p >
+			<strong>{{timerange}}</strong>
+			</p>
+			<h3>{{vehicle}}</h3>
+			<p>
+			Plate: {{plate}}
+			</p>
+			<p>
+			Location: {{location}}
+			</p>
+			<p>
+			Service: {{service}}
+			</p>
+
+			</li>
+			{{/jobs}}
+
+			{{/appointments}}
+
+		</script>
+
+		<script id="customer-statement-template" type="text/x-handlebars-template">
+
+			<ul data-role="listview" data-inset="true">
+
+			{{#expense}}
+
+			<li data-role="list-divider">
+			<h3>Start Balance:</h3>  <span class="ui-li-count">{{start_balance}}</span>
+			</li>
+
+			{{#jobs}}
+			<li>
+
+			<h2>{{vehicle}}</h2>
+			<p>
+			<strong>Location: {{location}}, {{service}}</strong>
+			</p>
+			<p>
+			{{date}}, {{timerange}}
+			</p>
+			<p class="ui-li-aside">
+			<strong> - {{expense}}</strong>
+			</p>
+
+			</li>
+			{{/jobs}}
+			<li data-role="list-divider">
+			<h3>Siteler Dollar:</h3>  <span class="ui-li-count">{{end_balance}}</span>
+			</li>
+			{{/expense}}
+			</ul>
+
+		</script>
+
+		<script id="job-detail-template" type="text/x-handlebars-template">
+			<div class='details'><h3>Owner: {{firstName}} {{lastName}}</h3>
+			<ul data-role="listview" data-inset="true">
+			<li><strong>{{vehicle}}</strong>
+			<br/>Plate: {{plate}}<br/>Color:{{color}}</li>
+
+			<li><a href="tel:{{officePhone}}">Office: {{officePhone}}</a></li>
+			<li><a href="tel:{{cellPhone}}">Cell: {{cellPhone}}</a></li>
+			<li><a onclick="onsiteCheckIn()" >check in</a></li>
+			<li><a onclick="onsiteCheckOut()" >check out</a></li>
+			</ul>
+			</div>
+		</script>
+
+		<script></script>
+
+		<style>
+			.center {
+				margin-left: auto;
+				margin-right: auto;
+				width: 90%;
+			}
+			input[type=submit] {
+				border: 2px solid red;
+			}
+
+
+
+			html, body {
+				width: 100%;
+				height: 100%;
+				padding-top: 10%;
+			}
+
+			#worker_mapview_page, #map-canvas {
+				width: 100%;
+				height: 90%;
+				padding: 0;
+			}
+
+
+
+			#background {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100% !important;
+				height: 100% !important;
+				max-width: 100%;
+				background: url(images/screen-iphone-portrait.png) no-repeat center center fixed !important;
+				z-index: 0
+			}
+
+			.ul .li {
+				opacity: 0.5;
+				background: transparent;.ui-page {
+				background: none;
+			}
+
+		</style>
+
+	</head>
+	<body>
+
+		<div data-role="page" id="worker_mapview_page">
+
+			<div data-role="header" data-position="fixed" style="background-color:green">
+
+				<h1 style="color: white">Map View</h1>
+
+			</div><!-- /header -->
+
+			<div role="main" class="ui-content center" id="map-canvas">
+				<!-- map loads here... -->
+			</div>
+			<div data-role="footer" data-position="fixed">
+
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a href="#worker_menu_page" class="ui-btn ui-shadow ui-corner-all ui-btn-inline
+						ui-icon-back ui-btn-icon-left">Back</a>
+					</div>
+					<div class="ui-block-b ">
+
+					</div>
+					<div class="ui-block-c ">
+
+					</div>
+				</div>
+
+			</div><!-- /footer -->
+
+			<script>
+				$(document).on("pagecreate", "#worker_mapview_page", function() {
+					var defaultLatLng = new google.maps.LatLng(34.0983425, -118.3267434);
+					// Default to Hollywood, CA when no geolocation support
+
+					if (navigator.geolocation) {
+						function success(pos) {
+							// Location found, show map with these coordinates
+							drawMap(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
+						}
+
+						function fail(error) {
+							drawMap(defaultLatLng);
+							// Failed to find location, show default map
+						}
+
+						// Find the users current position.  Cache the location for 5 minutes, timeout after 6 seconds
+						navigator.geolocation.getCurrentPosition(success, fail, {
+							maximumAge : 500000,
+							enableHighAccuracy : true,
+							timeout : 6000
+						});
+					} else {
+						drawMap(defaultLatLng);
+						// No geolocation support, show default map
+					}
+
+					function drawMap(latlng) {
+						var myOptions = {
+							zoom : 10,
+							center : latlng,
+							mapTypeId : google.maps.MapTypeId.ROADMAP
+						};
+
+						var map = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
+
+						// Add an overlay to the map of current lat/lng
+						var marker = new google.maps.Marker({
+							position : latlng,
+							map : map,
+							title : "Greetings!"
+						});
+					}
+
+				});
+
+			</script>
+
+		</div><!-- /worker_mapview_page -->
+
+
+		<script type="text/javascript" src="cordova.js"></script>
+		<script type="text/javascript" src="js/index.js"></script>
+		<script type="text/javascript" src="js/httprequest.js"></script>
+		<script type="text/javascript" src="js/md5.js"></script>
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQC9sMh3b3_vhe2gbI_-WyiBzRte88KmY"></script>
+
+		<script type="text/javascript">
+			app.initialize();
+		</script>
+		<script src="js/datepicker/picker.js"></script>
+		<script src="js/datepicker/picker.date.js"></script>
+		<script src="js/datepicker/picker.time.js"></script>
+		<script src="js/datepicker/demo.js"></script>
+		<script src="js/form_handler.js"></script>
+
+	</body>
+</html>
